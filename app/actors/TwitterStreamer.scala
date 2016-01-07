@@ -1,34 +1,37 @@
 package actors
 
-import akka.actor.ActorRef
-import akka.actor.Actor
-import play.api.Logger
-import play.api.libs.json.Json
-import akka.actor.Props
-import play.api.libs.iteratee.Enumerator
-import play.api.libs.json.JsObject
-import play.api.libs.ws._
-import play.api.libs.oauth.OAuthCalculator
+import akka.actor.{ActorRef, Actor, Props}
+
 import play.api._
-import play.api.Play.current
-import play.api.libs.oauth.ConsumerKey
-import play.api.libs.oauth.RequestToken
-import play.api.libs.iteratee.{Concurrent, Enumeratee}
-import play.extras.iteratees._
-import play.api.libs.iteratee.Iteratee
-
+import play.api.libs.json.{JsObject, Json}
+import play.api.libs.ws._
+import play.api.libs.oauth.{ConsumerKey, RequestToken, OAuthCalculator}
+import play.api.libs.iteratee.{Concurrent, Enumeratee, Iteratee, Enumerator}
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.Play.current
 
+import play.extras.iteratees._
+
+/**
+ * Actor that consumes the twitter API and pass the data to the proper 
+ * Iteratee.
+ * 
+ * @author juansand
+ *
+ */
 class TwitterStreamer(out: ActorRef) extends Actor {
 
+  /**
+   * Receives all the messages sent to the actor.
+   * 
+   * @return
+   */
   def receive = {
-
     case "subscribe" =>
       Logger.info("Received subscription from a client")
 
       TwitterStreamer.subscribe(out)
   }
-
 }
 
 object TwitterStreamer {
