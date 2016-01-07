@@ -1,7 +1,53 @@
-@(message: String)
+@(message: String)(implicit request: RequestHeader)
 
-@main("Welcome to Play") {
+@main(message) {
+    <div id="tweets">    
+    </div>
+    
+    <script type="text/javascript">
 
-    @play20.welcome(message)
+        function formatText(tweet) {
+          var time = document.createElement("b");
+          time.innerHTML = "Time: ";
+          
+          var author = document.createElement("b");
+          author.innerHTML = "Author: ";
+          
+          var twt = document.createElement("b");
+          twt.innerHTML = "Tweet: ";
+          
+          var content = document.createElement("span");
+          
+          var br = document.createElement("br");
+          var br1 = document.createElement("br");
+          
+          content.appendChild(time);
+          content.appendChild(document.createTextNode(tweet.created_at)); 
+          content.appendChild(br);         
+          content.appendChild(author);
+          content.appendChild(document.createTextNode(tweet.user.screen_name));
+          content.appendChild(br1);
+          content.appendChild(twt);
+          content.appendChild(document.createTextNode(tweet.text));
+          
+          return content;
+        };
 
+        var url = "@routes.Application.tweets().webSocketURL()";        
+        var tweetSocket = new WebSocket(url);
+        
+        tweetSocket.onmessage = function(evt) {
+            console.log(evt);
+            
+            var data = JSON.parse(evt.data);
+            var tweet = document.createElement("p");
+            var text = formatText(data);
+            tweet.appendChild(text);
+            document.getElementById("tweets").appendChild(tweet);
+        };
+        
+        tweetSocket.onopen = function() {
+            tweetSocket.send("subscribe");
+        };        
+    </script>
 }
