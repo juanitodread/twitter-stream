@@ -6,6 +6,9 @@
     
     <script type="text/javascript">
 
+        
+    
+
         function formatText(tweet) {
           var time = document.createElement("b");
           time.innerHTML = "Time: ";
@@ -31,23 +34,45 @@
           content.appendChild(document.createTextNode(tweet.text));
           
           return content;
-        };
-
-        var url = "@routes.Application.tweets().webSocketURL()";        
-        var tweetSocket = new WebSocket(url);
+        }
         
-        tweetSocket.onmessage = function(evt) {
-            console.log(evt);
-            
-            var data = JSON.parse(evt.data);
+        function appendTweet(txt, type) {
             var tweet = document.createElement("p");
-            var text = formatText(data);
+            var text = type === 1 ? formatText(txt): document.createTextNode(txt);                        
             tweet.appendChild(text);
             document.getElementById("tweets").appendChild(tweet);
-        };
+        }
         
-        tweetSocket.onopen = function() {
-            tweetSocket.send("subscribe");
-        };        
+        function connect(attempt) {
+            var connectionAttempt = attempt;
+            var url = "@routes.Application.tweets().webSocketURL()";
+            var tweetSocket = new WebSocket(url);
+            
+            tweetSocket.onmessage = function(evt) {
+	            console.log(evt);
+	            
+	            var data = JSON.parse(evt.data);
+                appendTweet(data, 1);
+	        };
+	        
+	        tweetSocket.onopen = function() {
+                connectionAttempt = 1;	           
+	            tweetSocket.send("subscribe");
+	        };     
+	        
+	        tweetSocket.onclose = function() {
+	            if(connectionAttempt <= 3) {
+	               appendTweet("WARNING: Lost server connection, attempting to reconnect. Attempt number " + connectionAttempt, 0);
+	               
+	               setTimeout(function() {
+	                   connect(connectionAttempt + 1);
+	               }, 5000);
+	            } else {
+	               alert("The connection with the server was lost.");
+	            }
+	        };       
+        }    
+        
+        connect(1);                   
     </script>
 }

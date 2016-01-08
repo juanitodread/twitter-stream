@@ -65,7 +65,7 @@ object TwitterStreamer {
       WS.url(url)
         .withRequestTimeout(-1)
         .sign(OAuthCalculator(consumerKey, requestToken))
-        .withQueryString("track" -> "messi")
+        .withQueryString("track" -> "chapo")
         .get { response => 
             Logger.info(s"Status: ${response.status}")
             iteratee

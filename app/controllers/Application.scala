@@ -29,5 +29,5 @@ class Application extends Controller {
    */
   def tweets = WebSocket.acceptWithActor[String, JsValue] { request => 
       out => TwitterStreamer.props(out)
-    }
   }
+}
